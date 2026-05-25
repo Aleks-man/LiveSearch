@@ -2,6 +2,10 @@
 
 Vanilla JavaScript movie search app built with the OMDb API.
 
+## Demo
+
+https://aleks-man.github.io/LiveSearch/
+
 ## Features
 
 - Search movies by title
@@ -48,6 +52,7 @@ Then open `http://127.0.0.1:5500`.
 |   |-- dom.js
 |   |-- index.js
 |   `-- movies.js
+|-- favicon-cinema.svg
 |-- index.html
 |-- README.md
 `-- server.js
