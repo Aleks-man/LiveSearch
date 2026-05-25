@@ -9,9 +9,12 @@ import {
   hideError,
   setStatusMessage,
   hideStatusMessage,
-  setClearButtonVisibility
+  setClearButtonVisibility,
+  showMovieDetailsLoading,
+  renderMovieDetails,
+  renderMovieDetailsError
 } from './dom.js'
-import { searchMovies } from './api.js'
+import { getMovieDetails, searchMovies } from './api.js'
 
 const MIN_SEARCH_LENGTH = 4
 const DEBOUNCE_DELAY = 700
@@ -19,6 +22,7 @@ const DEBOUNCE_DELAY = 700
 export let searchLast = ''
 
 let activeRequest = null
+let activeDetailsRequest = null
 
 const debounce = (() => {
   let timer = null
@@ -31,7 +35,28 @@ const debounce = (() => {
 
 const renderMovies = (movies) => {
   hideStatusMessage()
-  movies.forEach(addMovieToList)
+  movies.forEach((movie) => addMovieToList(movie, handleMovieSelect))
+}
+
+const handleMovieSelect = async (movie) => {
+  if (activeDetailsRequest) {
+    activeDetailsRequest.abort()
+  }
+
+  activeDetailsRequest = new AbortController()
+  showMovieDetailsLoading(movie.Title)
+
+  try {
+    const movieDetails = await getMovieDetails(movie.imdbID, activeDetailsRequest.signal)
+    renderMovieDetails(movieDetails)
+  } catch (error) {
+    if (error.name !== 'AbortError') {
+      renderMovieDetailsError(error.message)
+      showError(error.message)
+    }
+  } finally {
+    activeDetailsRequest = null
+  }
 }
 
 const resetSearch = () => {

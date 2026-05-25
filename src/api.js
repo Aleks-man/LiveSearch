@@ -17,3 +17,20 @@ export const searchMovies = async (searchString, signal) => {
 
   return data.Search
 }
+
+export const getMovieDetails = async (imdbID, signal) => {
+  const url = `${API_URL}?apikey=${API_KEY}&i=${encodeURIComponent(imdbID)}&plot=full`
+  const response = await fetch(url, { signal })
+
+  if (!response.ok) {
+    throw new Error('Movie details are unavailable. Please try again later.')
+  }
+
+  const data = await response.json()
+
+  if (data.Response === 'False') {
+    throw new Error('Movie details are not found. Please try another title.')
+  }
+
+  return data
+}

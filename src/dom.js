@@ -1,5 +1,9 @@
 let moviesList = null
 let statusMessage = null
+let detailsModal = null
+let detailsContent = null
+let detailsCloseButton = null
+let lastFocusedElement = null
 let errorTimeout = null
 let errorHideTimeout = null
 
@@ -160,6 +164,56 @@ const createMarkup = () => {
     textContent: 'Alex Manuilov, 2024',
     container: document.body
   })
+
+  createMovieDetailsModal()
+}
+
+const createMovieDetailsModal = () => {
+  detailsModal = createElement({
+    attrs: {
+      class: 'movie-modal',
+      role: 'dialog',
+      'aria-modal': 'true',
+      'aria-labelledby': 'movie-modal-title',
+      hidden: ''
+    },
+    container: document.body,
+    event: 'click',
+    handler: (event) => {
+      if (event.target === detailsModal) {
+        closeMovieDetails()
+      }
+    }
+  })
+
+  const modalPanel = createElement({
+    attrs: { class: 'movie-modal__panel' },
+    container: detailsModal
+  })
+
+  detailsCloseButton = createElement({
+    tag: 'button',
+    attrs: {
+      class: 'movie-modal__close',
+      type: 'button',
+      'aria-label': 'Close movie details'
+    },
+    textContent: 'Close',
+    container: modalPanel,
+    event: 'click',
+    handler: closeMovieDetails
+  })
+
+  detailsContent = createElement({
+    attrs: { class: 'movie-modal__content' },
+    container: modalPanel
+  })
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && detailsModal && !detailsModal.hidden) {
+      closeMovieDetails()
+    }
+  })
 }
 
 export const showError = (message) => {
@@ -195,11 +249,28 @@ export const hideError = () => {
   }, 300)
 }
 
-export const addMovieToList = (movie) => {
+export const addMovieToList = (movie, onSelect) => {
   const item = createElement({
-    attrs: { class: 'movie' },
+    attrs: {
+      class: 'movie',
+      role: 'button',
+      tabindex: '0',
+      'data-imdb-id': movie.imdbID,
+      'aria-label': `Open details for ${movie.Title}`
+    },
     container: moviesList,
-    position: 'prepend'
+    position: 'prepend',
+    event: 'click',
+    handler: () => {
+      onSelect(movie)
+    }
+  })
+
+  item.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onSelect(movie)
+    }
   })
 
   createElement({
@@ -220,6 +291,144 @@ export const addMovieToList = (movie) => {
     textContent: `${movie.Title}, ${movie.Year}`,
     container: item
   })
+}
+
+const getMoviePoster = (poster) => (/^https?:\/\//i.test(poster) ? poster : 'image/no-imeg.jpg')
+
+const isUsefulValue = (value) => value && value !== 'N/A'
+
+const openMovieDetails = () => {
+  if (detailsModal.hidden) {
+    lastFocusedElement = document.activeElement
+  }
+
+  detailsModal.hidden = false
+  document.body.classList.add('modal-open')
+  detailsCloseButton.focus()
+}
+
+export const showMovieDetailsLoading = (title) => {
+  if (!detailsContent) return
+
+  detailsContent.textContent = ''
+
+  createElement({
+    tag: 'p',
+    attrs: { class: 'movie-modal__loading' },
+    textContent: `Loading details for ${title}...`,
+    container: detailsContent
+  })
+
+  openMovieDetails()
+}
+
+export const renderMovieDetails = (movie) => {
+  if (!detailsContent) return
+
+  detailsContent.textContent = ''
+
+  const poster = createElement({
+    tag: 'img',
+    attrs: {
+      class: 'movie-modal__poster',
+      src: getMoviePoster(movie.Poster),
+      alt: `${movie.Title} poster`
+    },
+    container: detailsContent
+  })
+
+  const info = createElement({
+    attrs: { class: 'movie-modal__info' },
+    container: detailsContent
+  })
+
+  createElement({
+    tag: 'h2',
+    attrs: { id: 'movie-modal-title', class: 'movie-modal__title' },
+    textContent: movie.Title,
+    container: info
+  })
+
+  const meta = createElement({
+    tag: 'p',
+    attrs: { class: 'movie-modal__meta' },
+    textContent: [movie.Year, movie.Rated, movie.Runtime, movie.imdbRating && `IMDb ${movie.imdbRating}`]
+      .filter(isUsefulValue)
+      .join(' / '),
+    container: info
+  })
+
+  if (!meta.textContent) {
+    meta.hidden = true
+  }
+
+  createElement({
+    tag: 'p',
+    attrs: { class: 'movie-modal__plot' },
+    textContent: isUsefulValue(movie.Plot) ? movie.Plot : 'Plot description is not available.',
+    container: info
+  })
+
+  const facts = createElement({
+    tag: 'dl',
+    attrs: { class: 'movie-modal__facts' },
+    container: info
+  })
+
+  ;[
+    ['Genre', movie.Genre],
+    ['Director', movie.Director],
+    ['Actors', movie.Actors],
+    ['Type', movie.Type],
+    ['Language', movie.Language],
+    ['Awards', movie.Awards]
+  ]
+    .filter(([, value]) => isUsefulValue(value))
+    .forEach(([label, value]) => {
+      createElement({
+        tag: 'dt',
+        textContent: label,
+        container: facts
+      })
+
+      createElement({
+        tag: 'dd',
+        textContent: value,
+        container: facts
+      })
+    })
+
+  poster.addEventListener('error', () => {
+    poster.src = 'image/no-imeg.jpg'
+  })
+
+  openMovieDetails()
+}
+
+export const renderMovieDetailsError = (message) => {
+  if (!detailsContent) return
+
+  detailsContent.textContent = ''
+
+  createElement({
+    tag: 'p',
+    attrs: { class: 'movie-modal__loading' },
+    textContent: message,
+    container: detailsContent
+  })
+
+  openMovieDetails()
+}
+
+export const closeMovieDetails = () => {
+  if (!detailsModal || detailsModal.hidden) return
+
+  detailsModal.hidden = true
+  document.body.classList.remove('modal-open')
+
+  if (lastFocusedElement) {
+    lastFocusedElement.focus()
+  }
 }
 
 export const setStatusMessage = (message) => {
