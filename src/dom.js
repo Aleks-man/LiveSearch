@@ -48,16 +48,6 @@ const createMarkup = () => {
     position: 'prepend'
   })
 
-  createElement({
-    tag: 'img',
-    attrs: {
-      class: 'body__image',
-      src: 'image/movie1.jpg',
-      alt: ''
-    },
-    container: document.body
-  })
-
   const heading = createElement({
     tag: 'h1',
     textContent: 'Movies search tool',
