@@ -18,6 +18,7 @@ import { getMovieDetails, searchMovies } from './api.js'
 
 const MIN_SEARCH_LENGTH = 4
 const DEBOUNCE_DELAY = 700
+const MOVIE_NOT_FOUND_ERROR = 'MOVIE_NOT_FOUND'
 
 export let searchLast = ''
 
@@ -52,7 +53,10 @@ const handleMovieSelect = async (movie) => {
   } catch (error) {
     if (error.name !== 'AbortError') {
       renderMovieDetailsError(error.message)
-      showError(error.message)
+
+      if (error.code !== MOVIE_NOT_FOUND_ERROR) {
+        showError(error.message)
+      }
     }
   } finally {
     activeDetailsRequest = null
@@ -118,7 +122,13 @@ const inputSearchHandler = (event) => {
     } catch (error) {
       if (error.name !== 'AbortError') {
         clearMoviesMarkup()
-        setStatusMessage('Nothing to show yet')
+
+        if (error.code === MOVIE_NOT_FOUND_ERROR) {
+          setStatusMessage(error.message)
+          return
+        }
+
+        setStatusMessage('Search is temporarily unavailable')
         showError(error.message)
       }
     }

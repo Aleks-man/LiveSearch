@@ -161,7 +161,7 @@ const createMarkup = () => {
   createElement({
     tag: 'footer',
     attrs: { class: 'footer' },
-    textContent: 'Alex Manuilov, 2024',
+    textContent: 'Alex Manuilov, 2026',
     container: document.body
   })
 
