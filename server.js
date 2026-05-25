@@ -10,6 +10,7 @@ const contentTypes = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
+  '.svg': 'image/svg+xml; charset=utf-8',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg'
@@ -33,7 +34,10 @@ const server = http.createServer((request, response) => {
     }
 
     response.writeHead(200, {
-      'Content-Type': contentTypes[path.extname(filePath)] || 'application/octet-stream'
+      'Content-Type': contentTypes[path.extname(filePath)] || 'application/octet-stream',
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      Pragma: 'no-cache',
+      Expires: '0'
     })
     response.end(data)
   })
