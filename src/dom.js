@@ -9,7 +9,7 @@ let errorHideTimeout = null
 
 export let inputSearch = null
 export let clearSearchButton = null
-export let triggerMode = false
+export let favoriteMoviesButton = null
 
 const createElement = ({
   tag = 'div',
@@ -111,33 +111,14 @@ const createMarkup = () => {
     container: inputBox
   })
 
-  const checkBox = createElement({
-    attrs: { class: 'search__group search__group--checkbox' },
+  favoriteMoviesButton = createElement({
+    tag: 'button',
+    attrs: {
+      class: 'search__favorites',
+      type: 'button'
+    },
+    textContent: 'Favorites (0)',
     container: searchBox
-  })
-
-  createElement({
-    tag: 'input',
-    attrs: {
-      class: 'search__checkbox',
-      id: 'checkbox',
-      type: 'checkbox'
-    },
-    container: checkBox,
-    event: 'change',
-    handler: (event) => {
-      triggerMode = event.target.checked
-    }
-  })
-
-  createElement({
-    tag: 'label',
-    attrs: {
-      class: 'search__label-checkbox',
-      for: 'checkbox'
-    },
-    textContent: 'Add movies to the list',
-    container: checkBox
   })
 
   createElement({
@@ -249,10 +230,10 @@ export const hideError = () => {
   }, 300)
 }
 
-export const addMovieToList = (movie, onSelect) => {
+export const addMovieToList = (movie, onSelect, isFavorite = false) => {
   const item = createElement({
     attrs: {
-      class: 'movie',
+      class: isFavorite ? 'movie movie--favorite' : 'movie',
       role: 'button',
       tabindex: '0',
       'data-imdb-id': movie.imdbID,
@@ -265,6 +246,15 @@ export const addMovieToList = (movie, onSelect) => {
       onSelect(movie)
     }
   })
+
+  const favoriteBadge = createElement({
+    tag: 'span',
+    attrs: { class: 'movie__favorite-badge' },
+    textContent: 'Saved',
+    container: item
+  })
+
+  favoriteBadge.hidden = !isFavorite
 
   item.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -322,7 +312,13 @@ export const showMovieDetailsLoading = (title) => {
   openMovieDetails()
 }
 
-export const renderMovieDetails = (movie) => {
+const setFavoriteButtonState = (button, isFavorite) => {
+  button.classList.toggle('movie-modal__favorite--active', isFavorite)
+  button.textContent = isFavorite ? 'Remove from favorites' : 'Add to favorites'
+  button.setAttribute('aria-pressed', String(isFavorite))
+}
+
+export const renderMovieDetails = (movie, isFavorite = false, onFavoriteToggle = null) => {
   if (!detailsContent) return
 
   detailsContent.textContent = ''
@@ -361,6 +357,29 @@ export const renderMovieDetails = (movie) => {
   if (!meta.textContent) {
     meta.hidden = true
   }
+
+  const actions = createElement({
+    attrs: { class: 'movie-modal__actions' },
+    container: info
+  })
+
+  const favoriteButton = createElement({
+    tag: 'button',
+    attrs: {
+      class: 'movie-modal__favorite',
+      type: 'button'
+    },
+    container: actions,
+    event: 'click',
+    handler: () => {
+      if (typeof onFavoriteToggle !== 'function') return
+
+      const nextState = onFavoriteToggle(movie)
+      setFavoriteButtonState(favoriteButton, nextState)
+    }
+  })
+
+  setFavoriteButtonState(favoriteButton, isFavorite)
 
   createElement({
     tag: 'p',
@@ -405,6 +424,28 @@ export const renderMovieDetails = (movie) => {
   openMovieDetails()
 }
 
+export const setMovieFavoriteState = (imdbID, isFavorite) => {
+  document.querySelectorAll('.movie').forEach((movieCard) => {
+    if (movieCard.dataset.imdbId !== imdbID) return
+
+    const favoriteBadge = movieCard.querySelector('.movie__favorite-badge')
+
+    movieCard.classList.toggle('movie--favorite', isFavorite)
+
+    if (favoriteBadge) {
+      favoriteBadge.hidden = !isFavorite
+    }
+  })
+}
+
+export const removeMovieFromList = (imdbID) => {
+  document.querySelectorAll('.movie').forEach((movieCard) => {
+    if (movieCard.dataset.imdbId === imdbID) {
+      movieCard.remove()
+    }
+  })
+}
+
 export const renderMovieDetailsError = (message) => {
   if (!detailsContent) return
 
@@ -447,6 +488,12 @@ export const hideStatusMessage = () => {
 export const setClearButtonVisibility = (isVisible) => {
   if (clearSearchButton) {
     clearSearchButton.hidden = !isVisible
+  }
+}
+
+export const setFavoriteMoviesButtonCount = (count) => {
+  if (favoriteMoviesButton) {
+    favoriteMoviesButton.textContent = `Favorites (${count})`
   }
 }
 

@@ -9,8 +9,9 @@ Vanilla JavaScript movie search app built with the OMDb API.
 - Movie cards rendered with native DOM methods
 - Clickable movie cards with a details modal
 - Full movie details loaded by IMDb ID
+- Favorite movies saved in localStorage
+- Favorites view for saved movies
 - Modal closing by button, backdrop click, and Escape key
-- Optional mode for appending new results to the existing list
 - Loading, empty, and error UI states
 - Responsive cinema-inspired layout without frameworks
 
@@ -21,6 +22,7 @@ Vanilla JavaScript movie search app built with the OMDb API.
 - JavaScript ES Modules
 - Fetch API
 - AbortController
+- localStorage
 - OMDb API
 
 ## How To Run
@@ -52,4 +54,4 @@ Then open `http://127.0.0.1:5500`.
 
 ## What This Project Shows
 
-This project demonstrates working with plain JavaScript without frameworks: modular code, event handling, DOM rendering, debounced input, asynchronous API requests, request cancellation, clickable cards, modal UI, keyboard handling, and responsive styling.
+This project demonstrates working with plain JavaScript without frameworks: modular code, event handling, DOM rendering, debounced input, asynchronous API requests, request cancellation, clickable cards, modal UI, keyboard handling, localStorage persistence, and responsive styling.
