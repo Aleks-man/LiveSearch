@@ -1,8 +1,10 @@
 let moviesList = null
+let statusMessage = null
 let errorTimeout = null
 let errorHideTimeout = null
 
 export let inputSearch = null
+export let clearSearchButton = null
 export let triggerMode = false
 
 const createElement = ({
@@ -104,6 +106,17 @@ const createMarkup = () => {
     container: inputBox
   })
 
+  clearSearchButton = createElement({
+    tag: 'button',
+    attrs: {
+      class: 'search__clear',
+      type: 'button',
+      hidden: ''
+    },
+    textContent: 'Clear',
+    container: inputBox
+  })
+
   const checkBox = createElement({
     attrs: { class: 'search__group search__group--checkbox' },
     container: searchBox
@@ -136,6 +149,13 @@ const createMarkup = () => {
   createElement({
     tag: 'div',
     attrs: { class: 'error-message', hidden: '' },
+    container
+  })
+
+  statusMessage = createElement({
+    tag: 'p',
+    attrs: { class: 'status-message' },
+    textContent: 'Start typing a movie title',
     container
   })
 
@@ -210,6 +230,25 @@ export const addMovieToList = (movie) => {
     textContent: `${movie.Title}, ${movie.Year}`,
     container: item
   })
+}
+
+export const setStatusMessage = (message) => {
+  if (statusMessage) {
+    statusMessage.textContent = message
+    statusMessage.hidden = false
+  }
+}
+
+export const hideStatusMessage = () => {
+  if (statusMessage) {
+    statusMessage.hidden = true
+  }
+}
+
+export const setClearButtonVisibility = (isVisible) => {
+  if (clearSearchButton) {
+    clearSearchButton.hidden = !isVisible
+  }
 }
 
 export const clearMoviesMarkup = () => {
