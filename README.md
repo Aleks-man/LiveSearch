@@ -11,7 +11,7 @@ Vanilla JavaScript movie search app built with the OMDb API.
 - Full movie details loaded by IMDb ID
 - Favorite movies saved in localStorage
 - Favorites view for saved movies
-- Modal closing by button, backdrop click, and Escape key
+- Accessible modal closing by button, backdrop click, Escape key, and focus trap
 - Loading, empty, and error UI states
 - Responsive cinema-inspired layout without frameworks
 
@@ -44,6 +44,7 @@ Then open `http://127.0.0.1:5500`.
 |-- image/
 |-- src/
 |   |-- api.js
+|   |-- constants.js
 |   |-- dom.js
 |   |-- index.js
 |   `-- movies.js
@@ -54,4 +55,4 @@ Then open `http://127.0.0.1:5500`.
 
 ## What This Project Shows
 
-This project demonstrates working with plain JavaScript without frameworks: modular code, event handling, DOM rendering, debounced input, asynchronous API requests, request cancellation, clickable cards, modal UI, keyboard handling, localStorage persistence, and responsive styling.
+This project demonstrates working with plain JavaScript without frameworks: modular code, event handling, DOM rendering, debounced input, asynchronous API requests, request cancellation, clickable cards, modal UI, keyboard handling, focus management, localStorage persistence, and responsive styling.

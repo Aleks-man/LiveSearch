@@ -1,3 +1,5 @@
+import { API_ERROR } from './constants.js'
+
 const API_KEY = 'ca956212'
 const API_URL = 'https://www.omdbapi.com/'
 
@@ -12,13 +14,13 @@ export const searchMovies = async (searchString, signal) => {
   const response = await fetch(url, { signal })
 
   if (!response.ok) {
-    throw createApiError('Search service is unavailable. Please try again later.', 'SERVICE_ERROR')
+    throw createApiError('Search service is unavailable. Please try again later.', API_ERROR.SERVICE_ERROR)
   }
 
   const data = await response.json()
 
   if (data.Response === 'False') {
-    throw createApiError('No matches found. Try another title or check the spelling.', 'MOVIE_NOT_FOUND')
+    throw createApiError('No matches found. Try another title or check the spelling.', API_ERROR.MOVIE_NOT_FOUND)
   }
 
   return data.Search
@@ -29,13 +31,16 @@ export const getMovieDetails = async (imdbID, signal) => {
   const response = await fetch(url, { signal })
 
   if (!response.ok) {
-    throw createApiError('Movie details are unavailable. Please try again later.', 'SERVICE_ERROR')
+    throw createApiError('Movie details are unavailable. Please try again later.', API_ERROR.SERVICE_ERROR)
   }
 
   const data = await response.json()
 
   if (data.Response === 'False') {
-    throw createApiError('Movie details are not found. Please try another title.', 'MOVIE_DETAILS_NOT_FOUND')
+    throw createApiError(
+      'Movie details are not found. Please try another title.',
+      API_ERROR.MOVIE_DETAILS_NOT_FOUND
+    )
   }
 
   return data

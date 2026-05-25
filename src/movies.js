@@ -18,11 +18,10 @@ import {
   setFavoriteMoviesButtonCount
 } from './dom.js'
 import { getMovieDetails, searchMovies } from './api.js'
+import { API_ERROR, FAVORITES_STORAGE_KEY } from './constants.js'
 
 const MIN_SEARCH_LENGTH = 4
 const DEBOUNCE_DELAY = 700
-const MOVIE_NOT_FOUND_ERROR = 'MOVIE_NOT_FOUND'
-const FAVORITES_STORAGE_KEY = 'liveSearchFavorites'
 
 export let searchLast = ''
 
@@ -107,7 +106,7 @@ const handleMovieSelect = async (movie) => {
     if (error.name !== 'AbortError') {
       renderMovieDetailsError(error.message)
 
-      if (error.code !== MOVIE_NOT_FOUND_ERROR) {
+      if (error.code !== API_ERROR.MOVIE_NOT_FOUND) {
         showError(error.message)
       }
     }
@@ -195,7 +194,7 @@ const inputSearchHandler = (event) => {
       if (error.name !== 'AbortError') {
         clearMoviesMarkup()
 
-        if (error.code === MOVIE_NOT_FOUND_ERROR) {
+        if (error.code === API_ERROR.MOVIE_NOT_FOUND) {
           setStatusMessage(error.message)
           return
         }

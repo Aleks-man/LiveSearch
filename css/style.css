@@ -372,20 +372,23 @@ body.modal-open {
 
 .movie-modal__close {
   position: sticky;
-  top: 14px;
-  left: calc(100% - 104px);
+  top: 12px;
+  left: calc(100% - 58px);
   z-index: 1;
-  display: block;
-  min-width: 82px;
-  margin: 14px 14px 0 auto;
-  padding: 9px 12px;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin: 12px 12px 0 auto;
+  padding: 0;
   border: 1px solid rgba(21, 22, 27, 0.14);
   border-radius: 8px;
   color: #ffffff;
   background-color: #15161b;
   font: inherit;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 900;
+  line-height: 1;
   cursor: pointer;
 }
 

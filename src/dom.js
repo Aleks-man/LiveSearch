@@ -7,6 +7,15 @@ let lastFocusedElement = null
 let errorTimeout = null
 let errorHideTimeout = null
 
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])'
+].join(',')
+
 export let inputSearch = null
 export let clearSearchButton = null
 export let favoriteMoviesButton = null
@@ -179,7 +188,7 @@ const createMovieDetailsModal = () => {
       type: 'button',
       'aria-label': 'Close movie details'
     },
-    textContent: 'Close',
+    textContent: 'X',
     container: modalPanel,
     event: 'click',
     handler: closeMovieDetails
@@ -191,10 +200,42 @@ const createMovieDetailsModal = () => {
   })
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && detailsModal && !detailsModal.hidden) {
+    if (!detailsModal || detailsModal.hidden) return
+
+    if (event.key === 'Escape') {
       closeMovieDetails()
+      return
+    }
+
+    if (event.key === 'Tab') {
+      trapMovieDetailsFocus(event)
     }
   })
+}
+
+const trapMovieDetailsFocus = (event) => {
+  const focusableElements = [...detailsModal.querySelectorAll(FOCUSABLE_SELECTOR)].filter(
+    (element) => !element.hidden && element.offsetParent !== null
+  )
+
+  if (focusableElements.length === 0) {
+    event.preventDefault()
+    detailsCloseButton.focus()
+    return
+  }
+
+  const firstElement = focusableElements[0]
+  const lastElement = focusableElements[focusableElements.length - 1]
+
+  if (event.shiftKey && document.activeElement === firstElement) {
+    event.preventDefault()
+    lastElement.focus()
+  }
+
+  if (!event.shiftKey && document.activeElement === lastElement) {
+    event.preventDefault()
+    firstElement.focus()
+  }
 }
 
 export const showError = (message) => {
