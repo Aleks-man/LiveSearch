@@ -11,9 +11,8 @@ import {
   hideStatusMessage,
   setClearButtonVisibility
 } from './dom.js'
+import { searchMovies } from './api.js'
 
-const API_KEY = 'ca956212'
-const API_URL = 'https://www.omdbapi.com/'
 const MIN_SEARCH_LENGTH = 4
 const DEBOUNCE_DELAY = 700
 
@@ -29,23 +28,6 @@ const debounce = (() => {
     timer = setTimeout(callback, ms)
   }
 })()
-
-const getMovies = async (searchString, signal) => {
-  const url = `${API_URL}?apikey=${API_KEY}&s=${encodeURIComponent(searchString)}`
-  const response = await fetch(url, { signal })
-
-  if (!response.ok) {
-    throw new Error('Search service is unavailable. Please try again later.')
-  }
-
-  const data = await response.json()
-
-  if (data.Response === 'False') {
-    throw new Error(`'${searchString}' is not found. Please try again.`)
-  }
-
-  return data.Search
-}
 
 const renderMovies = (movies) => {
   hideStatusMessage()
@@ -106,7 +88,7 @@ const inputSearchHandler = (event) => {
     setStatusMessage('Searching...')
 
     try {
-      const movies = await getMovies(searchString, activeRequest.signal)
+      const movies = await searchMovies(searchString, activeRequest.signal)
       renderMovies(movies)
     } catch (error) {
       if (error.name !== 'AbortError') {
