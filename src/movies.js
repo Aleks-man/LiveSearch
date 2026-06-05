@@ -96,11 +96,12 @@ const handleMovieSelect = async (movie) => {
     activeDetailsRequest.abort()
   }
 
-  activeDetailsRequest = new AbortController()
+  const detailsRequest = new AbortController()
+  activeDetailsRequest = detailsRequest
   showMovieDetailsLoading(movie.Title)
 
   try {
-    const movieDetails = await getMovieDetails(movie.imdbID, activeDetailsRequest.signal)
+    const movieDetails = await getMovieDetails(movie.imdbID, detailsRequest.signal)
     renderMovieDetails(movieDetails, isFavoriteMovie(movieDetails.imdbID), toggleFavoriteMovie)
   } catch (error) {
     if (error.name !== 'AbortError') {
@@ -111,7 +112,9 @@ const handleMovieSelect = async (movie) => {
       }
     }
   } finally {
-    activeDetailsRequest = null
+    if (activeDetailsRequest === detailsRequest) {
+      activeDetailsRequest = null
+    }
   }
 }
 
